@@ -49,24 +49,42 @@ async function sendViaResend(body: Body, to: string): Promise<boolean> {
 }
 
 async function sendViaFormSubmit(body: Body, to: string): Promise<boolean> {
-  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      name: body.nome,
-      phone: body.telefone,
-      email: body.email || 'nao-informado@executeimoveis.com.br',
-      service: body.servico,
-      message: body.mensagem,
-      origem: body.origem,
-      _subject: 'Lead Execute Imóveis — site',
-      _template: 'table',
-    }),
-  });
-  return res.ok;
+  try {
+    const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        name: body.nome,
+        phone: body.telefone,
+        email: body.email || 'nao-informado@executeimoveis.com.br',
+        service: body.servico,
+        message: body.mensagem,
+        origem: body.origem,
+        _subject: 'Lead Execute Imóveis — site',
+        _template: 'table',
+      }),
+    });
+    if (!res.ok) {
+      console.error('[api/contact] FormSubmit HTTP', res.status, await res.text().catch(() => ''));
+    }
+    return res.ok;
+  } catch (err) {
+    console.error('[api/contact] FormSubmit failed:', err);
+    return false;
+  }
+}
+
+/** Resend quando configurado; senão (ou se falhar) FormSubmit. */
+async function sendEmailNotification(body: Body, to: string): Promise<boolean> {
+  if (process.env.RESEND_API_KEY) {
+    const viaResend = await sendViaResend(body, to);
+    if (viaResend) return true;
+    console.warn('[api/contact] Resend falhou; tentando FormSubmit.');
+  }
+  return sendViaFormSubmit(body, to);
 }
 
 async function pushLeadToCrm(body: Body): Promise<boolean> {
@@ -107,9 +125,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const to = process.env.CONTACT_TO_EMAIL ?? 'contato@executeimoveis.com.br';
 
-  const emailSent =
-    (await sendViaResend(body, to)) || (await sendViaFormSubmit(body, to));
-  const crmSaved = await pushLeadToCrm(body);
+  const [emailSent, crmSaved] = await Promise.all([
+    sendEmailNotification(body, to),
+    pushLeadToCrm(body),
+  ]);
 
   if (!emailSent && !crmSaved) {
     console.error('[api/contact] Ambos os canais falharam', { emailSent, crmSaved });
