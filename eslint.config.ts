@@ -3,7 +3,6 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
-import routeElementPlugin from './eslint-rules/route-element-jsx.js'
 
 const autoImportGlobals = {
   // React
@@ -40,9 +39,6 @@ const autoImportGlobals = {
   NavLink: 'readonly',
   Navigate: 'readonly',
   Outlet: 'readonly',
-  // React i18n
-  useTranslation: 'readonly',
-  Trans: 'readonly',
 }
 
 export default [
@@ -90,16 +86,6 @@ export default [
       'no-useless-catch': 'off',
       'no-irregular-whitespace': 'off',
       'no-undef': 'error',
-    },
-  },
-  // Only enforce this rule for the router config file to avoid false positives elsewhere.
-  {
-    files: ['src/router/config.tsx'],
-    plugins: {
-      'local-route': routeElementPlugin,
-    },
-    rules: {
-      'local-route/route-element-jsx': 'error',
     },
   },
 ]
