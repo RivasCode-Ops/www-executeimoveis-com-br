@@ -53,7 +53,7 @@ honeypot (`website`) para descartar spam de bots.
 api/contact.ts          # função serverless (Vercel) de captação de leads
 src/pages/home/         # página única com as seções da landing
 src/lib/submit-contact.ts  # client do formulário + SERVICE_OPTIONS
-public/images/          # hero, logo, og image
+public/images/          # logo, foto do consultor, og image
 scripts/                # testes manuais dos endpoints (PowerShell)
 vercel.json             # build Vite (saída ./out) + rewrites SPA/API
 ```

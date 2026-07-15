@@ -45,17 +45,24 @@ export default function HeroSection() {
 
   return (
     <section id="inicio" className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background image */}
-      <div className="absolute inset-0">
-        <img
-          src="/images/hero.jpg"
-          alt="Regularização Imobiliária"
-          className="w-full h-full object-cover object-top"
+      {/* Background: gradiente navy com brilho dourado e padrão sutil */}
+      <div className="absolute inset-0 bg-[#0B1120]">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0B1120] via-[#0F172A] to-[#12213D]" />
+        {/* Brilho dourado no canto do formulário */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_78%_35%,rgba(200,169,110,0.13),transparent)]" />
+        {/* Brilho azul institucional na base */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_15%_100%,rgba(15,95,219,0.16),transparent)]" />
+        {/* Padrão diagonal sutil (mesmo do rodapé) */}
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, #ffffff 0, #ffffff 1px, transparent 0, transparent 50%)',
+            backgroundSize: '22px 22px',
+          }}
         />
-        {/* Base dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0B1120]/95 via-[#0F172A]/82 to-[#0F172A]/58" />
-        {/* Extra darkening on the left text area for maximum readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070d1a]/70 via-[#0a1020]/30 to-transparent" />
+        {/* Linha dourada no rodapé do hero */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-10 pt-32 pb-20">
