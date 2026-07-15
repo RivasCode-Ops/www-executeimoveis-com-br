@@ -26,3 +26,4 @@ _recovered-source
 *.njsproj
 *.sln
 *.sw?
+.env*

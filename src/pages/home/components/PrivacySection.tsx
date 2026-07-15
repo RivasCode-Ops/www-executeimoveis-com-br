@@ -15,8 +15,8 @@ export default function PrivacySection() {
               Os dados enviados pelo formulário são processados pelo servidor do site (Vercel) e encaminhados
               por e-mail; não são vendidos a terceiros. Você pode solicitar correção ou exclusão entrando em contato pelo
               e-mail{' '}
-              <a href="mailto:contato@executeimoveis.com.br" className="text-primary hover:underline">
-                contato@executeimoveis.com.br
+              <a href="mailto:executeregularizacao@gmail.com" className="text-primary hover:underline">
+                executeregularizacao@gmail.com
               </a>
               .
             </p>

@@ -70,7 +70,7 @@ export default function ContactSection() {
 
             {[
               { icon: 'ri-map-pin-2-line', label: 'Localização', value: 'Picos – PI\nAtendemos todo o estado do Piauí' },
-              { icon: 'ri-mail-line', label: 'E-mail', value: 'contato@executeimoveis.com.br' },
+              { icon: 'ri-mail-line', label: 'E-mail', value: 'executeregularizacao@gmail.com' },
               { icon: 'ri-time-line', label: 'Horário', value: 'Segunda a Sexta: 8h às 18h\nSábado: 8h às 12h' },
             ].map((info) => (
               <div key={info.label} className="flex items-start gap-4 bg-surface rounded-xl p-5 border border-border/60 shadow-[0_2px_16px_-2px_rgba(15,23,42,0.05)]">

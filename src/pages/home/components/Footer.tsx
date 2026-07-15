@@ -25,7 +25,7 @@ export default function Footer() {
   const contacts = [
     { icon: 'ri-map-pin-2-line', label: 'Localização', text: 'Picos – Piauí' },
     { icon: 'ri-phone-line', label: 'Telefone', text: '(86) 9 9463-3075' },
-    { icon: 'ri-mail-line', label: 'E-mail', text: 'contato@executeimoveis.com.br' },
+    { icon: 'ri-mail-line', label: 'E-mail', text: 'executeregularizacao@gmail.com' },
     { icon: 'ri-time-line', label: 'Horário', text: 'Seg–Sex: 8h às 18h' },
   ];
 

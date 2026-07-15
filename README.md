@@ -40,7 +40,7 @@ honeypot (`website`) para descartar spam de bots.
 
 | Variável | Obrigatória | Descrição |
 | --- | --- | --- |
-| `CONTACT_TO_EMAIL` | não | Destinatário dos leads (padrão: `contato@executeimoveis.com.br`) |
+| `CONTACT_TO_EMAIL` | não | Destinatário dos leads (padrão: `executeregularizacao@gmail.com`) |
 | `RESEND_API_KEY` | não | Chave da API do Resend; sem ela, usa FormSubmit |
 | `RESEND_FROM_EMAIL` | não | Remetente do Resend (padrão: `noreply@executeimoveis.com.br`) |
 | `CRM_LEADS_WEBHOOK_URL` | não | URL do webhook de leads do CRM |

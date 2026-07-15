@@ -152,7 +152,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // "||" (e não "??") para tratar env var definida como string vazia.
-  const to = process.env.CONTACT_TO_EMAIL || 'rivaldo.alexandre.ra@gmail.com';
+  const to = process.env.CONTACT_TO_EMAIL || 'executeregularizacao@gmail.com';
 
   const [emailSent, crmSaved] = await Promise.all([
     sendEmailNotification(body, to),
