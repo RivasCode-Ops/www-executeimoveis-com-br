@@ -43,7 +43,8 @@ async function sendViaResend(body: Body, to: string): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false;
 
-  const from = process.env.RESEND_FROM_EMAIL ?? 'noreply@executeimoveis.com.br';
+  // "||" (e não "??") para tratar env var definida como string vazia.
+  const from = process.env.RESEND_FROM_EMAIL || 'noreply@executeimoveis.com.br';
   const text = [
     `Nome: ${body.nome ?? ''}`,
     `Telefone: ${body.telefone ?? ''}`,
@@ -150,7 +151,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ ok: false, message: 'Nome e telefone são obrigatórios.' });
   }
 
-  const to = process.env.CONTACT_TO_EMAIL ?? 'contato@executeimoveis.com.br';
+  // "||" (e não "??") para tratar env var definida como string vazia.
+  const to = process.env.CONTACT_TO_EMAIL || 'rivaldo.alexandre.ra@gmail.com';
 
   const [emailSent, crmSaved] = await Promise.all([
     sendEmailNotification(body, to),
