@@ -21,6 +21,7 @@ npm run build      # build de produção (gera ./out)
 npm run preview    # serve o build localmente
 npm run lint       # ESLint
 npm run type-check # tsc --noEmit
+npm test           # Vitest (testes da API de leads)
 ```
 
 ## Captação de leads

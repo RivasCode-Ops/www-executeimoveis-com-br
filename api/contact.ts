@@ -27,7 +27,7 @@ const FIELD_LIMITS: Record<keyof Body, number> = {
 };
 
 /** Coage para string, remove espaços das pontas e corta no limite do campo. */
-function sanitizeBody(raw: unknown): Body {
+export function sanitizeBody(raw: unknown): Body {
   const source = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
   const clean: Body = {};
   for (const key of Object.keys(FIELD_LIMITS) as (keyof Body)[]) {
