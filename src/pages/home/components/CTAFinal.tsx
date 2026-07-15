@@ -1,3 +1,5 @@
+import { trackWhatsAppClick } from '@/lib/analytics';
+
 export default function CTAFinal() {
   return (
     <section className="py-24 bg-text-primary relative overflow-hidden">
@@ -27,6 +29,7 @@ export default function CTAFinal() {
             href="https://wa.me/5586994633075"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClick('cta_final')}
             className="flex items-center gap-2 border border-gold/40 hover:border-gold text-white hover:bg-gold/10 px-8 py-4 rounded-lg font-semibold text-base transition-all whitespace-nowrap cursor-pointer"
           >
             <i className="ri-whatsapp-line text-lg"></i>

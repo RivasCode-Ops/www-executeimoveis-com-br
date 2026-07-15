@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { trackWhatsAppClick } from '@/lib/analytics';
 
 export default function WhatsAppFloat() {
   const [visible, setVisible] = useState(false);
@@ -48,6 +49,7 @@ export default function WhatsAppFloat() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Falar no WhatsApp"
+          onClick={() => trackWhatsAppClick('float')}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
           className="relative w-14 h-14 flex items-center justify-center rounded-full bg-success hover:bg-success/90 text-white transition-all duration-200 hover:scale-110 cursor-pointer"

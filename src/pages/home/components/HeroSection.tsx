@@ -1,9 +1,12 @@
 import { useState, FormEvent } from 'react';
 import { SERVICE_OPTIONS, submitContactForm } from '@/lib/submit-contact';
+import { formatPhoneBR, PHONE_PATTERN, PHONE_TITLE } from '@/lib/phone';
+import { trackLeadSubmit, trackWhatsAppClick } from '@/lib/analytics';
 
 export default function HeroSection() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [charCount, setCharCount] = useState(0);
+  const [phone, setPhone] = useState('');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,6 +27,8 @@ export default function HeroSection() {
         setStatus('success');
         form.reset();
         setCharCount(0);
+        setPhone('');
+        trackLeadSubmit('hero');
       } else {
         setStatus('error');
       }
@@ -85,6 +90,7 @@ export default function HeroSection() {
                 href="https://wa.me/5586994633075"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClick('hero')}
                 className="flex items-center gap-2.5 border border-white/25 hover:border-white/50 text-white hover:bg-white/[0.05] px-9 py-4 rounded-xl font-semibold text-sm transition-all whitespace-nowrap cursor-pointer backdrop-blur-sm tracking-wide"
               >
                 <i className="ri-whatsapp-line text-base"></i>
@@ -175,6 +181,11 @@ export default function HeroSection() {
                             name="telefone"
                             type="tel"
                             required
+                            inputMode="tel"
+                            pattern={PHONE_PATTERN}
+                            title={PHONE_TITLE}
+                            value={phone}
+                            onChange={(e) => setPhone(formatPhoneBR(e.target.value))}
                             placeholder="(86) 99999-9999"
                             className="w-full border border-border/70 rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/40 focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/8 transition-all bg-white"
                           />

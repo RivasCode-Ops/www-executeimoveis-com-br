@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { trackWhatsAppClick } from '@/lib/analytics';
 
 export default function ExitIntentPopup() {
   const [visible, setVisible] = useState(false);
@@ -150,7 +151,7 @@ export default function ExitIntentPopup() {
                 href="https://wa.me/5586994633075?text=Ol%C3%A1%2C%20gostaria%20de%20uma%20consulta%20gratuita%20sobre%20regulariza%C3%A7%C3%A3o%20do%20meu%20im%C3%B3vel."
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={hide}
+                onClick={() => { trackWhatsAppClick('exit_popup'); hide(); }}
                 className="flex items-center justify-center gap-2 bg-success hover:bg-success/90 text-white px-6 py-3.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap cursor-pointer flex-1"
               >
                 <i className="ri-whatsapp-line text-lg"></i>

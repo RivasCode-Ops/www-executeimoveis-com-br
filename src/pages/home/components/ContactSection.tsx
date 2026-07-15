@@ -1,10 +1,13 @@
 import { useState, FormEvent } from 'react';
 import AnimateIn from '../../../components/feature/AnimateIn';
 import { SERVICE_OPTIONS, submitContactForm } from '@/lib/submit-contact';
+import { formatPhoneBR, PHONE_PATTERN, PHONE_TITLE } from '@/lib/phone';
+import { trackLeadSubmit, trackWhatsAppClick } from '@/lib/analytics';
 
 export default function ContactSection() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [charCount, setCharCount] = useState(0);
+  const [phone, setPhone] = useState('');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,6 +28,8 @@ export default function ContactSection() {
         setStatus('success');
         form.reset();
         setCharCount(0);
+        setPhone('');
+        trackLeadSubmit('contato');
       } else {
         setStatus('error');
       }
@@ -56,6 +61,7 @@ export default function ContactSection() {
               href="https://wa.me/5586994633075"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick('contato')}
               className="flex items-center gap-5 bg-success hover:bg-success/90 transition-colors rounded-2xl p-7 cursor-pointer"
             >
               <div className="w-16 h-16 flex items-center justify-center bg-white/20 rounded-xl flex-shrink-0">
@@ -148,6 +154,11 @@ export default function ContactSection() {
                         name="telefone"
                         type="tel"
                         required
+                        inputMode="tel"
+                        pattern={PHONE_PATTERN}
+                        title={PHONE_TITLE}
+                        value={phone}
+                        onChange={(e) => setPhone(formatPhoneBR(e.target.value))}
                         placeholder="(86) 9 9999-9999"
                         className="w-full border border-border rounded-lg px-4 py-3.5 text-sm text-text-primary focus:outline-none focus:border-gold transition-colors bg-background"
                       />
