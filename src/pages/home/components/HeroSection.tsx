@@ -9,8 +9,6 @@ export default function HeroSection() {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const message = formData.get('mensagem') as string;
-    if (message && message.length > 500) return;
     setStatus('sending');
     try {
       const result = await submitContactForm({
@@ -154,10 +152,11 @@ export default function HeroSection() {
                         className="absolute opacity-0 pointer-events-none h-0 w-0 overflow-hidden"
                       />
                       <div>
-                        <label className="block text-[11px] font-semibold text-text-primary mb-1.5 uppercase tracking-[0.08em]">
+                        <label htmlFor="hero-nome" className="block text-[11px] font-semibold text-text-primary mb-1.5 uppercase tracking-[0.08em]">
                           Nome Completo <span className="text-red-500">*</span>
                         </label>
                         <input
+                          id="hero-nome"
                           name="nome"
                           type="text"
                           required
@@ -168,10 +167,11 @@ export default function HeroSection() {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[11px] font-semibold text-text-primary mb-1.5 uppercase tracking-[0.08em]">
+                          <label htmlFor="hero-telefone" className="block text-[11px] font-semibold text-text-primary mb-1.5 uppercase tracking-[0.08em]">
                             WhatsApp <span className="text-red-500">*</span>
                           </label>
                           <input
+                            id="hero-telefone"
                             name="telefone"
                             type="tel"
                             required
@@ -180,8 +180,9 @@ export default function HeroSection() {
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] font-semibold text-text-primary mb-1.5 uppercase tracking-[0.08em]">E-mail</label>
+                          <label htmlFor="hero-email" className="block text-[11px] font-semibold text-text-primary mb-1.5 uppercase tracking-[0.08em]">E-mail</label>
                           <input
+                            id="hero-email"
                             name="email"
                             type="email"
                             placeholder="seu@email.com"
@@ -191,8 +192,9 @@ export default function HeroSection() {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-semibold text-text-primary mb-1.5 uppercase tracking-[0.08em]">Interesse</label>
+                        <label htmlFor="hero-servico" className="block text-[11px] font-semibold text-text-primary mb-1.5 uppercase tracking-[0.08em]">Interesse</label>
                         <select
+                          id="hero-servico"
                           name="servico"
                           className="w-full border border-border/70 rounded-xl px-4 py-3 text-sm text-text-primary focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/8 transition-all bg-white cursor-pointer appearance-none"
                         >
@@ -205,10 +207,11 @@ export default function HeroSection() {
 
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <label className="block text-[11px] font-semibold text-text-primary uppercase tracking-[0.08em]">Mensagem (opcional)</label>
+                          <label htmlFor="hero-mensagem" className="block text-[11px] font-semibold text-text-primary uppercase tracking-[0.08em]">Mensagem (opcional)</label>
                           <span className={`text-[11px] ${charCount > 450 ? 'text-red-500' : 'text-text-secondary/50'}`}>{charCount}/500</span>
                         </div>
                         <textarea
+                          id="hero-mensagem"
                           name="mensagem"
                           rows={3}
                           maxLength={500}

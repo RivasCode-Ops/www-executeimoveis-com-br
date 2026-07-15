@@ -88,6 +88,8 @@ export default function Navbar() {
         <button
           className="lg:hidden cursor-pointer"
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={menuOpen}
         >
           <i
             className={`text-2xl ${scrolled ? 'text-text-primary' : 'text-white'} ${

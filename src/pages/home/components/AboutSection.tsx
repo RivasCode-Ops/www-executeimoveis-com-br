@@ -18,6 +18,9 @@ export default function AboutSection() {
                 <img
                   src="/images/about.jpg"
                   alt="Rivaldo Alexandre - Consultor Imobiliário"
+                  width={800}
+                  height={1200}
+                  loading="lazy"
                   className="w-full h-full object-cover object-top"
                 />
               </div>

@@ -62,6 +62,7 @@ export default function FAQSection() {
               <div className="bg-surface rounded-xl border border-border/60 shadow-[0_2px_16px_-2px_rgba(15,23,42,0.05)] hover:border-gold/25 overflow-hidden transition-colors">
                 <button
                   onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                  aria-expanded={openIndex === idx}
                   className="w-full flex items-center justify-between gap-4 p-6 text-left cursor-pointer"
                 >
                   <span className="font-semibold text-text-primary text-sm">{faq.question}</span>

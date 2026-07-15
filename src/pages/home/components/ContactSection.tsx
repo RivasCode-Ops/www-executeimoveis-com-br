@@ -10,10 +10,6 @@ export default function ContactSection() {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const message = formData.get('mensagem') as string;
-    if (message && message.length > 500) {
-      return;
-    }
     setStatus('sending');
     try {
       const result = await submitContactForm({
@@ -122,8 +118,9 @@ export default function ContactSection() {
                   />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-xs font-semibold text-text-primary mb-2 uppercase tracking-wide">Nome Completo *</label>
+                      <label htmlFor="contato-nome" className="block text-xs font-semibold text-text-primary mb-2 uppercase tracking-wide">Nome Completo *</label>
                       <input
+                        id="contato-nome"
                         name="nome"
                         type="text"
                         required
@@ -132,11 +129,11 @@ export default function ContactSection() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-text-primary mb-2 uppercase tracking-wide">E-mail *</label>
+                      <label htmlFor="contato-email" className="block text-xs font-semibold text-text-primary mb-2 uppercase tracking-wide">E-mail</label>
                       <input
+                        id="contato-email"
                         name="email"
                         type="email"
-                        required
                         placeholder="seu@email.com"
                         className="w-full border border-border rounded-lg px-4 py-3.5 text-sm text-text-primary focus:outline-none focus:border-gold transition-colors bg-background"
                       />
@@ -145,8 +142,9 @@ export default function ContactSection() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-xs font-semibold text-text-primary mb-2 uppercase tracking-wide">Telefone / WhatsApp *</label>
+                      <label htmlFor="contato-telefone" className="block text-xs font-semibold text-text-primary mb-2 uppercase tracking-wide">Telefone / WhatsApp *</label>
                       <input
+                        id="contato-telefone"
                         name="telefone"
                         type="tel"
                         required
@@ -155,8 +153,9 @@ export default function ContactSection() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-text-primary mb-2 uppercase tracking-wide">Tipo de Serviço</label>
+                      <label htmlFor="contato-servico" className="block text-xs font-semibold text-text-primary mb-2 uppercase tracking-wide">Tipo de Serviço</label>
                       <select
+                        id="contato-servico"
                         name="servico"
                         className="w-full border border-border rounded-lg px-4 py-3.5 text-sm text-text-primary focus:outline-none focus:border-gold transition-colors bg-background"
                       >
@@ -170,10 +169,11 @@ export default function ContactSection() {
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="block text-xs font-semibold text-text-primary uppercase tracking-wide">Mensagem</label>
+                      <label htmlFor="contato-mensagem" className="block text-xs font-semibold text-text-primary uppercase tracking-wide">Mensagem</label>
                       <span className={`text-xs ${charCount > 450 ? 'text-red-500' : 'text-text-secondary'}`}>{charCount}/500</span>
                     </div>
                     <textarea
+                      id="contato-mensagem"
                       name="mensagem"
                       rows={4}
                       maxLength={500}

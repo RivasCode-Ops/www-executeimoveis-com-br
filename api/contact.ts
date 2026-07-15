@@ -13,6 +13,32 @@ type Body = {
   website?: string;
 };
 
+const FIELD_LIMITS: Record<keyof Body, number> = {
+  nome: 120,
+  telefone: 40,
+  email: 160,
+  servico: 80,
+  mensagem: 500,
+  origem: 40,
+  utm_source: 100,
+  utm_medium: 100,
+  utm_campaign: 100,
+  website: 200,
+};
+
+/** Coage para string, remove espaços das pontas e corta no limite do campo. */
+function sanitizeBody(raw: unknown): Body {
+  const source = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
+  const clean: Body = {};
+  for (const key of Object.keys(FIELD_LIMITS) as (keyof Body)[]) {
+    const value = source[key];
+    if (typeof value === 'string') {
+      clean[key] = value.trim().slice(0, FIELD_LIMITS[key]);
+    }
+  }
+  return clean;
+}
+
 async function sendViaResend(body: Body, to: string): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false;
@@ -41,6 +67,7 @@ async function sendViaResend(body: Body, to: string): Promise<boolean> {
     body: JSON.stringify({
       from,
       to: [to],
+      reply_to: body.email || undefined,
       subject: `[Execute Imóveis] Novo contato: ${body.nome}`,
       text,
     }),
@@ -113,13 +140,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ ok: false, message: 'Método não permitido.' });
   }
 
-  const body = (req.body ?? {}) as Body;
+  const body = sanitizeBody(req.body);
 
-  if (body.website?.trim()) {
+  if (body.website) {
     return res.status(200).json({ ok: true });
   }
 
-  if (!body.nome?.trim() || !body.telefone?.trim()) {
+  if (!body.nome || !body.telefone) {
     return res.status(400).json({ ok: false, message: 'Nome e telefone são obrigatórios.' });
   }
 

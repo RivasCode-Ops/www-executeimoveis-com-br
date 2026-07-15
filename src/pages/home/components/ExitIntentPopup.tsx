@@ -34,6 +34,15 @@ export default function ExitIntentPopup() {
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, [show]);
 
+  useEffect(() => {
+    if (!visible) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') hide();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [visible]);
+
   if (!visible) return null;
 
   return (
@@ -43,6 +52,9 @@ export default function ExitIntentPopup() {
       onClick={(e) => { if (e.target === e.currentTarget) hide(); }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Oferta de consulta gratuita"
         className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-2xl"
         style={{
           opacity: animating ? 1 : 0,
@@ -54,6 +66,7 @@ export default function ExitIntentPopup() {
 
         <button
           onClick={hide}
+          aria-label="Fechar"
           className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-text-secondary hover:text-text-primary transition-all cursor-pointer z-10"
         >
           <i className="ri-close-line text-base"></i>

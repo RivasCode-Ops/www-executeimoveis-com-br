@@ -55,17 +55,13 @@ export default defineConfig({
             "Outlet",
           ],
         },
-        // React i18n
-        {
-          "react-i18next": ["useTranslation", "Trans"],
-        },
       ],
       dts: true,
     }),
   ],
   base,
   build: {
-    sourcemap: true,
+    sourcemap: false,
     outDir: "out",
   },
   resolve: {
