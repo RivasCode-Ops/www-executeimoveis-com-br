@@ -22,6 +22,13 @@ export default function Footer() {
     'Consultoria Documental',
   ];
 
+  // Serviços que já têm guia publicada: viram link interno (bom para SEO).
+  const serviceGuides: Record<string, string> = {
+    'Inventário e Partilha': '/guias/regularizar-imovel-herdado-inventario-piaui/',
+    'Usucapião Judicial e Extrajudicial': '/guias/usucapiao-extrajudicial-piaui/',
+    'Retificação de Matrícula': '/guias/retificacao-de-matricula-piaui/',
+  };
+
   const contacts = [
     { icon: 'ri-map-pin-2-line', label: 'Localização', text: 'Picos – Piauí' },
     { icon: 'ri-phone-line', label: 'Telefone', text: '(86) 9 9463-3075' },
@@ -97,6 +104,15 @@ export default function Footer() {
                   </button>
                 </li>
               ))}
+              <li>
+                <a
+                  href="/guias/"
+                  className="text-white/55 hover:text-gold text-sm transition-colors cursor-pointer text-left flex items-center gap-2 group"
+                >
+                  <i className="ri-arrow-right-s-line text-xs text-gold/0 group-hover:text-gold transition-all"></i>
+                  Guias
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -106,17 +122,26 @@ export default function Footer() {
               Serviços
             </h4>
             <ul className="space-y-3">
-              {services.map((s) => (
-                <li key={s}>
-                  <button
-                    onClick={() => scrollTo('servicos')}
-                    className="text-white/55 hover:text-gold text-sm transition-colors cursor-pointer text-left flex items-center gap-2 group"
-                  >
-                    <i className="ri-arrow-right-s-line text-xs text-gold/0 group-hover:text-gold transition-all"></i>
-                    {s}
-                  </button>
-                </li>
-              ))}
+              {services.map((s) => {
+                const guideHref = serviceGuides[s];
+                const cls =
+                  'text-white/55 hover:text-gold text-sm transition-colors cursor-pointer text-left flex items-center gap-2 group';
+                return (
+                  <li key={s}>
+                    {guideHref ? (
+                      <a href={guideHref} className={cls}>
+                        <i className="ri-arrow-right-s-line text-xs text-gold/0 group-hover:text-gold transition-all"></i>
+                        {s}
+                      </a>
+                    ) : (
+                      <button onClick={() => scrollTo('servicos')} className={cls}>
+                        <i className="ri-arrow-right-s-line text-xs text-gold/0 group-hover:text-gold transition-all"></i>
+                        {s}
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

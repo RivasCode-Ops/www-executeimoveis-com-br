@@ -72,6 +72,16 @@ export default function Navbar() {
               {l.label}
             </button>
           ))}
+          <a
+            href="/guias/"
+            className={`text-sm font-medium transition-colors whitespace-nowrap cursor-pointer tracking-wide ${
+              scrolled
+                ? 'text-text-secondary hover:text-primary'
+                : 'text-white/75 hover:text-white'
+            }`}
+          >
+            Guias
+          </a>
         </nav>
 
         <button
@@ -110,6 +120,12 @@ export default function Navbar() {
               {l.label}
             </button>
           ))}
+          <a
+            href="/guias/"
+            className="text-left text-text-primary font-medium text-sm py-1 cursor-pointer tracking-wide"
+          >
+            Guias
+          </a>
           <button
             onClick={() => scrollTo('contato')}
             className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold cursor-pointer mt-2"
