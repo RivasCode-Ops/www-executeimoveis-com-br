@@ -115,6 +115,16 @@ async function sendEmailNotification(body: Body, to: string): Promise<boolean> {
   return sendViaFormSubmit(body, to);
 }
 
+/** Monta um link wa.me a partir do telefone informado pelo lead. */
+export function waLink(phone?: string): string | null {
+  if (!phone) return null;
+  let d = phone.replace(/\D/g, '');
+  if (!d) return null;
+  // Adiciona o código do Brasil quando vier só com DDD + número (10 ou 11 dígitos).
+  if (!d.startsWith('55') && (d.length === 10 || d.length === 11)) d = `55${d}`;
+  return `https://wa.me/${d}`;
+}
+
 /** Alerta instantâneo no Telegram (cai no celular na hora). Best-effort. */
 async function sendTelegramAlert(body: Body): Promise<boolean> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -133,11 +143,24 @@ async function sendTelegramAlert(body: Body): Promise<boolean> {
     .filter(Boolean)
     .join('\n');
 
+  // Botão de 1 toque para responder o lead direto no WhatsApp.
+  const wa = waLink(body.telefone);
+  const payload: Record<string, unknown> = {
+    chat_id: chatId,
+    text,
+    disable_web_page_preview: true,
+  };
+  if (wa) {
+    payload.reply_markup = {
+      inline_keyboard: [[{ text: '💬 Responder no WhatsApp', url: wa }]],
+    };
+  }
+
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       console.error('[api/contact] Telegram HTTP', res.status, await res.text().catch(() => ''));

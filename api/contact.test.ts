@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import handler, { sanitizeBody } from './contact';
+import handler, { sanitizeBody, waLink } from './contact';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 function makeReq(method: string, body: unknown): VercelRequest {
@@ -43,6 +43,18 @@ describe('sanitizeBody', () => {
     expect(sanitizeBody(null)).toEqual({});
     expect(sanitizeBody('texto')).toEqual({});
     expect(sanitizeBody(undefined)).toEqual({});
+  });
+});
+
+describe('waLink', () => {
+  it('adiciona o código do Brasil a DDD + número', () => {
+    expect(waLink('86977776666')).toBe('https://wa.me/5586977776666');
+    expect(waLink('(86) 9 9463-3075')).toBe('https://wa.me/5586994633075');
+  });
+  it('respeita número que já vem com 55 e trata vazio', () => {
+    expect(waLink('5586994633075')).toBe('https://wa.me/5586994633075');
+    expect(waLink('')).toBeNull();
+    expect(waLink(undefined)).toBeNull();
   });
 });
 
