@@ -24,6 +24,7 @@ export default function Footer() {
 
   // Serviços que já têm guia publicada: viram link interno (bom para SEO).
   const serviceGuides: Record<string, string> = {
+    'Regularização Urbana e Rural': '/guias/regularizacao-imovel-rural-ccir-itr-car-piaui/',
     'Inventário e Partilha': '/guias/regularizar-imovel-herdado-inventario-piaui/',
     'Usucapião Judicial e Extrajudicial': '/guias/usucapiao-extrajudicial-piaui/',
     'Retificação de Matrícula': '/guias/retificacao-de-matricula-piaui/',
