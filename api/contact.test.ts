@@ -116,6 +116,25 @@ describe('handler', () => {
     expect(urls).toContain('https://crm.example.com/webhook');
   });
 
+  it('envia alerta no Telegram quando configurado e conta como canal entregue', async () => {
+    vi.stubEnv('TELEGRAM_BOT_TOKEN', 'tok');
+    vi.stubEnv('TELEGRAM_CHAT_ID', '123');
+    // e-mail (FormSubmit) falha, CRM não configurado; só o Telegram entrega
+    vi.mocked(fetch).mockImplementation((url: unknown) =>
+      Promise.resolve(
+        String(url).includes('api.telegram.org')
+          ? ({ ok: true } as Response)
+          : ({ ok: false, status: 500, text: async () => 'err' } as Response),
+      ),
+    );
+    const res = makeRes();
+    await handler(makeReq('POST', { nome: 'Maria', telefone: '86999990000' }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload).toMatchObject({ ok: true, telegram: true });
+    const urls = vi.mocked(fetch).mock.calls.map((c) => String(c[0]));
+    expect(urls.some((u) => u.includes('api.telegram.org/bottok/sendMessage'))).toBe(true);
+  });
+
   it('cai no FormSubmit quando o Resend falha', async () => {
     vi.stubEnv('RESEND_API_KEY', 'key-teste');
     vi.mocked(fetch)
