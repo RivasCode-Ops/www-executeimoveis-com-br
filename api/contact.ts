@@ -115,6 +115,40 @@ async function sendEmailNotification(body: Body, to: string): Promise<boolean> {
   return sendViaFormSubmit(body, to);
 }
 
+/** Alerta instantâneo no Telegram (cai no celular na hora). Best-effort. */
+async function sendTelegramAlert(body: Body): Promise<boolean> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chatId) return false;
+
+  const text = [
+    '🏠 Novo lead — Execute Imóveis',
+    `👤 ${body.nome ?? ''}`,
+    `📞 ${body.telefone ?? ''}`,
+    body.email ? `✉️ ${body.email}` : null,
+    body.servico ? `🔧 ${body.servico}` : null,
+    body.mensagem ? `💬 ${body.mensagem}` : null,
+    body.origem ? `📍 ${body.origem}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
+    });
+    if (!res.ok) {
+      console.error('[api/contact] Telegram HTTP', res.status, await res.text().catch(() => ''));
+    }
+    return res.ok;
+  } catch (err) {
+    console.error('[api/contact] Telegram failed:', err);
+    return false;
+  }
+}
+
 async function pushLeadToCrm(body: Body): Promise<boolean> {
   const crmUrl = process.env.CRM_LEADS_WEBHOOK_URL;
   const secret = process.env.CRM_LEADS_WEBHOOK_SECRET;
@@ -154,18 +188,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // "||" (e não "??") para tratar env var definida como string vazia.
   const to = process.env.CONTACT_TO_EMAIL || 'executeregularizacao@gmail.com';
 
-  const [emailSent, crmSaved] = await Promise.all([
+  const [emailSent, crmSaved, telegramSent] = await Promise.all([
     sendEmailNotification(body, to),
     pushLeadToCrm(body),
+    sendTelegramAlert(body),
   ]);
 
-  if (!emailSent && !crmSaved) {
-    console.error('[api/contact] Ambos os canais falharam', { emailSent, crmSaved });
+  if (!emailSent && !crmSaved && !telegramSent) {
+    console.error('[api/contact] Todos os canais falharam', { emailSent, crmSaved, telegramSent });
     return res.status(503).json({
       ok: false,
       message: 'Não foi possível processar o contato. Tente pelo WhatsApp.',
     });
   }
 
-  return res.status(200).json({ ok: true, crm: crmSaved, email: emailSent });
+  return res.status(200).json({ ok: true, crm: crmSaved, email: emailSent, telegram: telegramSent });
 }
