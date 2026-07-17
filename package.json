@@ -2,6 +2,7 @@
   "name": "execute-imoveis-site",
   "private": true,
   "version": "0.0.0",
+  "author": "Riva's Alexandre",
   "type": "module",
   "scripts": {
     "dev": "vite",
