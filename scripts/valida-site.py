@@ -9,7 +9,7 @@ anterior so olhava ancoras dentro da propria pagina, entao nao tinha como pegar.
 import re, sys, pathlib, urllib.request, urllib.error
 
 RAIZ = pathlib.Path('out')
-BASE = 'http://127.0.0.1:8140'
+BASE = 'http://127.0.0.1:8144'
 falhas = []
 
 

@@ -591,3 +591,95 @@ select:focus-visible,textarea:focus-visible{
   display: inline-block;
   padding: .55rem 0;
 }
+
+/* ------------------------------------------------------------------------
+   Perguntas frequentes
+   Sanfona com <details>, que e HTML nativo: abre e fecha sem JavaScript, e o
+   texto esta no documento mesmo fechado — o que importa para quem le HTML cru.
+   ------------------------------------------------------------------------ */
+
+.faq {
+  max-width: 62ch;
+  border-top: 1px solid var(--sand-line);
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--sand-line);
+}
+
+.faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  min-height: 56px;
+  padding: var(--s4) 0;
+  font-family: var(--font-title);
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker { display: none }
+
+/* O sinal de abrir e fechar e feito com borda, sem arquivo de icone. */
+.faq-item summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--gold);
+  border-bottom: 2px solid var(--gold);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform .15s ease;
+}
+
+.faq-item[open] summary::after {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+.faq-item p {
+  margin: 0 0 var(--s5);
+  padding-right: var(--s6);
+  color: var(--text-2);
+}
+
+/* ------------------------------------------------------------------------
+   Cabeçalho: a faixa do menu desce mais cedo
+   ------------------------------------------------------------------------
+   O item "Consultas oficiais" foi o sétimo do menu e estourou a largura numa
+   faixa intermediária. Medido: entre 861 e ~1150px o menu passava POR BAIXO do
+   botão — o último item terminava em x=950 com o botão começando em x=782, e
+   quem olhasse via "Consultas" cortado pela metade. Abaixo de 860 já quebrava
+   certo; a partir de 1200 cabia. O buraco era o meio.
+
+   A correção sobe o ponto de quebra do cabeçalho para 1150px, e SÓ do
+   cabeçalho: a regra de 860px continua mandando no resto (escala de espaço,
+   corpo de texto, grades), porque encolher tipografia em tablet não tem nada a
+   ver com o menu não caber.
+   ------------------------------------------------------------------------ */
+
+@media (min-width: 861px) and (max-width: 1150px) {
+  .header-inner {
+    flex-wrap: wrap;
+    gap: var(--s3);
+    padding: var(--s3) 0;
+  }
+
+  .brand { order: 1; flex: 1 1 auto }
+  .header-cta { order: 2; flex: 0 0 auto }
+
+  .site-nav {
+    order: 3;
+    flex: 1 0 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .site-nav::-webkit-scrollbar { display: none }
+  .site-nav a { padding: 12px 0; display: inline-block }
+}
