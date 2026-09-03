@@ -135,43 +135,28 @@ async function sendViaResend(body: Body, to: string): Promise<boolean> {
   return res.ok;
 }
 
-async function sendViaFormSubmit(body: Body, to: string): Promise<boolean> {
-  try {
-    const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        name: body.nome,
-        phone: body.telefone,
-        email: body.email || 'nao-informado@executeimoveis.com.br',
-        service: body.servico,
-        message: body.mensagem,
-        origem: body.origem,
-        _subject: 'Lead Execute Imóveis — site',
-        _template: 'table',
-      }),
-    });
-    if (!res.ok) {
-      console.error('[api/contact] FormSubmit HTTP', res.status, await res.text().catch(() => ''));
-    }
-    return res.ok;
-  } catch (err) {
-    console.error('[api/contact] FormSubmit failed:', err);
+/**
+ * E-mail só pelo Resend, que é conta nossa e entrega direto.
+ *
+ * Não há reserva de propósito. A anterior era o formsubmit.co — terceiro
+ * gratuito, sem contrato, por onde passavam nome, telefone, e-mail e mensagem
+ * de quem procura regularização de imóvel. Dado de lead não sai daqui para
+ * serviço de graça. E ela não estava nem entregando: em 03/09/2026 um lead de
+ * teste em produção devolveu `email:false` com `crm:true` e `telegram:true`.
+ *
+ * Sem RESEND_API_KEY, o canal de e-mail fica desligado — declaradamente, no
+ * log e no corpo da resposta (`email:false`). CRM e Telegram seguem avisando,
+ * e são os dois canais provados.
+ */
+async function sendEmailNotification(body: Body, to: string): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn(
+      '[api/contact] RESEND_API_KEY ausente: canal de e-mail desligado. ' +
+        'Lead segue por CRM e Telegram.',
+    );
     return false;
   }
-}
-
-/** Resend quando configurado; senão (ou se falhar) FormSubmit. */
-async function sendEmailNotification(body: Body, to: string): Promise<boolean> {
-  if (process.env.RESEND_API_KEY) {
-    const viaResend = await sendViaResend(body, to);
-    if (viaResend) return true;
-    console.warn('[api/contact] Resend falhou; tentando FormSubmit.');
-  }
-  return sendViaFormSubmit(body, to);
+  return sendViaResend(body, to);
 }
 
 /** Monta um link wa.me a partir do telefone informado pelo lead. */
