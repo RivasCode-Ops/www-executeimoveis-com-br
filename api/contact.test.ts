@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import handler, {
   sanitizeBody,
+  querHtml,
   waLink,
   clientIp,
   rateLimited,
@@ -253,5 +254,81 @@ describe('handler — limite de taxa', () => {
       await handler(makeReq('POST', { nome: 'Ana', telefone: '86988887777', website: 'isca' }), res);
     }
     expect(res.statusCode).toBe(200);
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * Navegador sem JavaScript
+ *
+ * A home é HTML estático e o formulário é um POST nativo. Sem estes casos, a
+ * regressão que volta a mostrar JSON cru na cara de quem mandou os dados
+ * passa calada: o status continua 200 e o lead continua chegando.
+ * ------------------------------------------------------------------ */
+
+const ACEITA_HTML = { accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' };
+
+describe('querHtml', () => {
+  it('reconhece a navegação de formulário do navegador', () => {
+    expect(querHtml(makeReq('POST', {}, ACEITA_HTML))).toBe(true);
+  });
+
+  it('não confunde chamada por código com navegação', () => {
+    expect(querHtml(makeReq('POST', {}, { accept: 'application/json' }))).toBe(false);
+    expect(querHtml(makeReq('POST', {}, {}))).toBe(false);
+  });
+});
+
+describe('handler sem JavaScript', () => {
+  beforeEach(() => {
+    resetRateLimit();
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200 }) as Response));
+    process.env.CRM_LEADS_WEBHOOK_URL = 'https://crm.exemplo/leads';
+    process.env.CRM_LEADS_WEBHOOK_SECRET = 'segredo';
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    delete process.env.CRM_LEADS_WEBHOOK_URL;
+    delete process.env.CRM_LEADS_WEBHOOK_SECRET;
+  });
+
+  it('manda o navegador para a página de obrigado, com 303', async () => {
+    const res = makeRes();
+    await handler(makeReq('POST', { nome: 'Ana', telefone: '86994633075' }, ACEITA_HTML), res);
+    expect(res.statusCode).toBe(303);
+    expect(res.headers.Location).toBe('/obrigado/');
+  });
+
+  it('manda para a página de erro quando falta nome ou telefone', async () => {
+    const res = makeRes();
+    await handler(makeReq('POST', { nome: 'Ana' }, ACEITA_HTML), res);
+    expect(res.statusCode).toBe(303);
+    expect(res.headers.Location).toBe('/nao-enviado/');
+  });
+
+  it('o honeypot leva à mesma página de obrigado, sem tocar em canal nenhum', async () => {
+    const res = makeRes();
+    await handler(
+      makeReq('POST', { nome: 'Robô', telefone: '1', website: 'x' }, ACEITA_HTML),
+      res
+    );
+    expect(res.statusCode).toBe(303);
+    expect(res.headers.Location).toBe('/obrigado/');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('quem chama por código continua recebendo JSON, com o status de antes', async () => {
+    const res = makeRes();
+    await handler(makeReq('POST', { nome: 'Ana' }, { accept: 'application/json' }), res);
+    expect(res.statusCode).toBe(400);
+    expect(res.headers.Location).toBeUndefined();
+  });
+});
+
+describe('campos do imóvel', () => {
+  it('cidade e tipo atravessam a sanitização e chegam ao lead', () => {
+    const clean = sanitizeBody({ cidade: '  Picos  ', tipo: 'rural' });
+    expect(clean.cidade).toBe('Picos');
+    expect(clean.tipo).toBe('rural');
   });
 });

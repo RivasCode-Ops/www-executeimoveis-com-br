@@ -1,73 +1,17 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import { resolve } from "node:path";
-import AutoImport from "unplugin-auto-import/vite";
 
-const base = process.env.BASE_PATH || "/";
-const isPreview = process.env.IS_PREVIEW ? true : false;
-// https://vite.dev/config/
+/**
+ * O site é HTML e CSS estáticos. O Vite ficou por dois motivos apenas: copiar
+ * `public/` para `out/` e servir com recarga durante o desenvolvimento. Não há
+ * framework, plugin nem transformação de código — o `index.html` que sai do
+ * build é o mesmo que está no repositório, e o `styles.css` chega intacto,
+ * pelo caminho `/styles.css` que as páginas referenciam.
+ */
 export default defineConfig({
-  define: {
-    __BASE_PATH__: JSON.stringify(base),
-    __IS_PREVIEW__: JSON.stringify(isPreview),
-  },
-  plugins: [
-    react(),
-    AutoImport({
-      imports: [
-        {
-          react: [
-            "React",
-            "useState",
-            "useEffect",
-            "useContext",
-            "useReducer",
-            "useCallback",
-            "useMemo",
-            "useRef",
-            "useImperativeHandle",
-            "useLayoutEffect",
-            "useDebugValue",
-            "useDeferredValue",
-            "useId",
-            "useInsertionEffect",
-            "useSyncExternalStore",
-            "useTransition",
-            "startTransition",
-            "lazy",
-            "memo",
-            "forwardRef",
-            "createContext",
-            "createElement",
-            "cloneElement",
-            "isValidElement",
-          ],
-        },
-        {
-          "react-router-dom": [
-            "useNavigate",
-            "useLocation",
-            "useParams",
-            "useSearchParams",
-            "Link",
-            "NavLink",
-            "Navigate",
-            "Outlet",
-          ],
-        },
-      ],
-      dts: true,
-    }),
-  ],
-  base,
+  base: process.env.BASE_PATH || "/",
   build: {
-    sourcemap: false,
     outDir: "out",
-  },
-  resolve: {
-    alias: {
-      "@": resolve(__dirname, "./src"),
-    },
+    emptyOutDir: true,
   },
   server: {
     port: 5173,

@@ -4,6 +4,8 @@ type Body = {
   nome?: string;
   telefone?: string;
   email?: string;
+  cidade?: string;
+  tipo?: string;
   servico?: string;
   mensagem?: string;
   origem?: string;
@@ -17,6 +19,8 @@ const FIELD_LIMITS: Record<keyof Body, number> = {
   nome: 120,
   telefone: 40,
   email: 160,
+  cidade: 80,
+  tipo: 20,
   servico: 80,
   mensagem: 500,
   origem: 40,
@@ -108,6 +112,8 @@ async function sendViaResend(body: Body, to: string): Promise<boolean> {
     `Nome: ${body.nome ?? ''}`,
     `Telefone: ${body.telefone ?? ''}`,
     `E-mail: ${body.email || '—'}`,
+    `Cidade do imóvel: ${body.cidade || '—'}`,
+    `Tipo do imóvel: ${body.tipo || '—'}`,
     `Serviço: ${body.servico || '—'}`,
     `Mensagem: ${body.mensagem || '—'}`,
     `Origem: ${body.origem || '—'}`,
@@ -180,6 +186,8 @@ async function sendTelegramAlert(body: Body): Promise<boolean> {
     `👤 ${body.nome ?? ''}`,
     `📞 ${body.telefone ?? ''}`,
     body.email ? `✉️ ${body.email}` : null,
+    body.cidade ? `🏙️ ${body.cidade}` : null,
+    body.tipo ? `🏷️ ${body.tipo}` : null,
     body.servico ? `🔧 ${body.servico}` : null,
     body.mensagem ? `💬 ${body.mensagem}` : null,
     body.origem ? `📍 ${body.origem}` : null,
@@ -237,6 +245,47 @@ async function pushLeadToCrm(body: Body): Promise<boolean> {
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * Resposta para navegador sem JavaScript
+ *
+ * A home passou a ser HTML estático e o formulário é um POST nativo:
+ * `<form method="post" action="/api/contact">`. Sem JavaScript o navegador
+ * NAVEGA para a resposta — e um JSON aparece como texto cru na tela de quem
+ * acabou de mandar os dados. Isso é pior que um erro, porque parece defeito
+ * do site justamente no momento em que a pessoa mais confiou nele.
+ *
+ * Então: quem pede `text/html` (navegação de formulário) recebe 303 com
+ * Location para uma página de verdade; quem não pede — chamada por fetch, e
+ * os testes — segue recebendo JSON, com o mesmo código de status de antes.
+ *
+ * 303 é o código certo depois de um POST: manda o navegador buscar a página
+ * seguinte com GET, então recarregar não reenvia o lead.
+ * ------------------------------------------------------------------ */
+
+const PAGINA_OK = '/obrigado/';
+const PAGINA_ERRO = '/nao-enviado/';
+
+export function querHtml(req: VercelRequest): boolean {
+  const accept = (req.headers ?? {}).accept;
+  const valor = Array.isArray(accept) ? accept.join(',') : accept ?? '';
+  return valor.includes('text/html');
+}
+
+/** Mesma decisão, duas formas de contar: página para gente, JSON para código. */
+function responde(
+  req: VercelRequest,
+  res: VercelResponse,
+  status: number,
+  corpo: Record<string, unknown>,
+  destino: string
+) {
+  if (querHtml(req)) {
+    res.setHeader('Location', destino);
+    return res.status(303).json(corpo);
+  }
+  return res.status(status).json(corpo);
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, message: 'Método não permitido.' });
@@ -246,20 +295,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const ip = clientIp(req);
   if (ip && rateLimited(ip)) {
     res.setHeader('Retry-After', String(Math.ceil(RATE_LIMIT_WINDOW_MS / 1000)));
-    return res.status(429).json({
+    return responde(req, res, 429, {
       ok: false,
       message: 'Muitas tentativas seguidas. Aguarde alguns minutos ou fale pelo WhatsApp.',
-    });
+    }, PAGINA_ERRO);
   }
 
   const body = sanitizeBody(req.body);
 
   if (body.website) {
-    return res.status(200).json({ ok: true });
+    return responde(req, res, 200, { ok: true }, PAGINA_OK);
   }
 
   if (!body.nome || !body.telefone) {
-    return res.status(400).json({ ok: false, message: 'Nome e telefone são obrigatórios.' });
+    return responde(
+      req, res, 400, { ok: false, message: 'Nome e telefone são obrigatórios.' }, PAGINA_ERRO
+    );
   }
 
   // "||" (e não "??") para tratar env var definida como string vazia.
@@ -273,11 +324,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!emailSent && !crmSaved && !telegramSent) {
     console.error('[api/contact] Todos os canais falharam', { emailSent, crmSaved, telegramSent });
-    return res.status(503).json({
+    return responde(req, res, 503, {
       ok: false,
       message: 'Não foi possível processar o contato. Tente pelo WhatsApp.',
-    });
+    }, PAGINA_ERRO);
   }
 
-  return res.status(200).json({ ok: true, crm: crmSaved, email: emailSent, telegram: telegramSent });
+  return responde(
+    req, res, 200, { ok: true, crm: crmSaved, email: emailSent, telegram: telegramSent }, PAGINA_OK
+  );
 }
