@@ -39,6 +39,65 @@ export function sanitizeBody(raw: unknown): Body {
   return clean;
 }
 
+/* ------------------------------------------------------------------ *
+ * Limite de taxa
+ *
+ * O endereço é público e sem autenticação, e cada chamada aceita dispara
+ * Telegram, CRM e e-mail. Sem trava, uma única pessoa inunda os três.
+ *
+ * A contagem vive na memória da instância. Serverless escala em várias
+ * instâncias, então um ataque distribuído passa mais que o teto abaixo —
+ * isto corta o caso comum (um script, um IP), não substitui um contador
+ * central. Trocar por Vercel KV / Upstash quando houver motivo.
+ * ------------------------------------------------------------------ */
+
+export const RATE_LIMIT_MAX = 5;
+export const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+
+const hits = new Map<string, number[]>();
+
+/** Só a borda da Vercel escreve estes cabeçalhos; o cliente não os controla. */
+export function clientIp(req: VercelRequest): string | null {
+  const headers = (req.headers ?? {}) as Record<string, string | string[] | undefined>;
+
+  const real = headers['x-real-ip'];
+  if (typeof real === 'string' && real.trim()) return real.trim();
+
+  const fwd = headers['x-forwarded-for'];
+  const raw = Array.isArray(fwd) ? fwd[0] : fwd;
+  if (typeof raw === 'string' && raw.trim()) {
+    const first = raw.split(',')[0]?.trim();
+    if (first) return first;
+  }
+  return null;
+}
+
+/** true = estourou a cota. Registra a tentativa quando ela é aceita. */
+export function rateLimited(ip: string, now: number = Date.now()): boolean {
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+
+  if (recent.length >= RATE_LIMIT_MAX) {
+    hits.set(ip, recent);
+    return true;
+  }
+
+  recent.push(now);
+  hits.set(ip, recent);
+
+  // Poda: sem isto o Map cresce sem teto na instância quente.
+  if (hits.size > 5_000) {
+    for (const [key, stamps] of hits) {
+      if (stamps.every((t) => now - t >= RATE_LIMIT_WINDOW_MS)) hits.delete(key);
+    }
+  }
+  return false;
+}
+
+/** Só para os testes: zera o contador entre casos. */
+export function resetRateLimit(): void {
+  hits.clear();
+}
+
 async function sendViaResend(body: Body, to: string): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false;
@@ -196,6 +255,16 @@ async function pushLeadToCrm(body: Body): Promise<boolean> {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, message: 'Método não permitido.' });
+  }
+
+  // Antes de qualquer trabalho: enxurrada tem de sair barata.
+  const ip = clientIp(req);
+  if (ip && rateLimited(ip)) {
+    res.setHeader('Retry-After', String(Math.ceil(RATE_LIMIT_WINDOW_MS / 1000)));
+    return res.status(429).json({
+      ok: false,
+      message: 'Muitas tentativas seguidas. Aguarde alguns minutos ou fale pelo WhatsApp.',
+    });
   }
 
   const body = sanitizeBody(req.body);
