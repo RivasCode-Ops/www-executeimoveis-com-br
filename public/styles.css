@@ -12,6 +12,11 @@
   --sand-line:#E3DCCB;
   --gold:#B8893D;
   --gold-soft:#D8B87E;
+  /* Dourado para TEXTO. O --gold acima e de borda e filete; como texto
+     ele reprova em contraste (2,79:1 sobre areia). Ver o parecer de
+     03/09/2026. Sobre fundo escuro quem escreve e o --gold-soft, que
+     da 7,26:1 sobre o navy. */
+  --gold-texto:#8A6520;
   --graphite:#202625;
   --surface:#FCFBF8;
 
@@ -83,7 +88,7 @@ p{margin:0 0 var(--s4)}
 p:last-child{margin-bottom:0}
 
 a{color:var(--navy);text-decoration-color:var(--gold-soft);text-underline-offset:3px}
-a:hover{color:var(--gold)}
+a:hover{color:var(--gold-texto)}
 
 /* Foco visível e consistente em todo o site */
 a:focus-visible,button:focus-visible,input:focus-visible,
@@ -107,7 +112,7 @@ select:focus-visible,textarea:focus-visible{
   font-weight:600;
   letter-spacing:.16em;
   text-transform:uppercase;
-  color:var(--gold);
+  color:var(--gold-texto);
   margin:0 0 var(--s3);
   display:block;
 }
@@ -132,7 +137,7 @@ select:focus-visible,textarea:focus-visible{
 
 /* Ação secundária — única em todo o site */
 .btn-secondary{background:transparent;color:var(--navy);border-color:var(--line-strong)}
-.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold-texto)}
 
 .on-navy .btn-primary{background:var(--sand);color:var(--navy);border-color:var(--sand)}
 .on-navy .btn-primary:hover{background:#fff;color:var(--navy)}
@@ -314,7 +319,7 @@ select:focus-visible,textarea:focus-visible{
 }
 .step::before{
   content:"0" counter(step);
-  font-family:var(--font-title);font-size:1.5rem;color:var(--gold);
+  font-family:var(--font-title);font-size:1.5rem;color:var(--gold-texto);
   display:block;margin-bottom:var(--s2);line-height:1;
 }
 .step h3{margin-bottom:var(--s2)}
@@ -350,7 +355,7 @@ select:focus-visible,textarea:focus-visible{
 
 .contact-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--s5)}
 .contact-list dt{
-  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-texto);margin-bottom:4px;
 }
 .contact-list dd{margin:0;font-size:1.02rem;color:var(--text);overflow-wrap:anywhere}
 .contact-list dd a{color:var(--navy)}
@@ -556,3 +561,33 @@ select:focus-visible,textarea:focus-visible{
    propria, o h1 daqui herdava a margem generica e o lede colava nele. */
 .page-hero h1 { color: #fff; margin-bottom: var(--s5); max-width: 20ch }
 .page-hero .lede { color: var(--on-navy-2); font-size: 1.12rem; max-width: 52ch; margin-bottom: var(--s5) }
+
+
+/* ------------------------------------------------------------------------
+   Correções de 03/09/2026 — âncora, contraste sobre navy e alvo de toque
+   ------------------------------------------------------------------------ */
+
+/* Sem isto, clicar num item do menu levava a pessoa para um ponto onde o
+   titulo da secao ficava ATRAS do cabecalho grudento: 77px escondidos no
+   desktop e 136px no celular, o que engolia o titulo inteiro. Medido. */
+[id] {
+  scroll-margin-top: 96px;
+}
+
+@media (max-width: 900px) {
+  [id] { scroll-margin-top: 152px; }
+}
+
+/* Sobre fundo escuro quem escreve e o dourado claro: 7,26:1 contra os 4,38:1
+   do dourado da marca, que reprovaria nos 11,5px da etiqueta. */
+.on-navy .eyebrow,
+.section--navy .eyebrow {
+  color: var(--gold-soft);
+}
+
+/* Telefone e e-mail sao os dois canais principais do negocio e eram os
+   menores alvos da pagina, com 18px de altura. */
+.contact-list dd a {
+  display: inline-block;
+  padding: .55rem 0;
+}
