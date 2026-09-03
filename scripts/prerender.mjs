@@ -32,6 +32,21 @@ const SERVIDOR = path.join(RAIZ, 'out-ssr', 'entry-server.js')
 const MARCADOR = '<div id="root"></div>'
 const MINIMO_PALAVRAS = 500   // a home rende ~1600; 500 pega regressão sem ser frágil
 
+/**
+ * Teto de blocos que saem com `opacity:0` inline.
+ *
+ * Existe porque a primeira versão deste script mediu a coisa errada. Ela conferia que a
+ * home rendia ~1600 palavras, o que era verdade, e deixou passar que 1.322 delas — 82% —
+ * chegavam dentro de elemento invisível: o AnimateIn começava com `inView = false` e no
+ * servidor não há IntersectionObserver. Contar palavras media presença no documento; o
+ * que decide é visibilidade.
+ *
+ * Hoje o único bloco que nasce oculto de propósito é o botão "Voltar ao topo". O teto é 2
+ * para caber mais um caso legítimo sem alarme falso; qualquer coisa além disso é conteúdo
+ * voltando a depender de JavaScript para ser visto, e aí o build para.
+ */
+const MAXIMO_OCULTOS = 2
+
 function aborta(motivo) {
   console.error(`ABORTA (prerender): ${motivo}`)
   process.exit(1)
@@ -57,6 +72,16 @@ if (palavras < MINIMO_PALAVRAS) {
   aborta(`a renderização saiu com ${palavras} palavras, abaixo do mínimo de ${MINIMO_PALAVRAS}`)
 }
 if (!/<h1[\s>]/.test(corpo)) aborta('a renderização saiu sem <h1>')
+
+const ocultos = corpo.match(/opacity:0(?![.\d])/g) ?? []
+if (ocultos.length > MAXIMO_OCULTOS) {
+  aborta(
+    `a renderização saiu com ${ocultos.length} blocos em opacity:0, acima do teto de ` +
+    `${MAXIMO_OCULTOS}. Conteúdo pré-renderizado que nasce invisível não serve a quem ` +
+    `lê HTML sem executar JavaScript — que é a razão deste script existir. ` +
+    `Ver o comentário no topo de src/components/feature/AnimateIn.tsx.`
+  )
+}
 
 fs.writeFileSync(HTML, original.replace(MARCADOR, `<div id="root">${corpo}</div>`))
 
