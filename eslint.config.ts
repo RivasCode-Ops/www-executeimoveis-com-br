@@ -1,92 +1,30 @@
 import js from '@eslint/js'
 import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
-const autoImportGlobals = {
-  // React
-  React: 'readonly',
-  useState: 'readonly',
-  useEffect: 'readonly',
-  useContext: 'readonly',
-  useReducer: 'readonly',
-  useCallback: 'readonly',
-  useMemo: 'readonly',
-  useRef: 'readonly',
-  useImperativeHandle: 'readonly',
-  useLayoutEffect: 'readonly',
-  useDebugValue: 'readonly',
-  useDeferredValue: 'readonly',
-  useId: 'readonly',
-  useInsertionEffect: 'readonly',
-  useSyncExternalStore: 'readonly',
-  useTransition: 'readonly',
-  startTransition: 'readonly',
-  lazy: 'readonly',
-  memo: 'readonly',
-  forwardRef: 'readonly',
-  createContext: 'readonly',
-  createElement: 'readonly',
-  cloneElement: 'readonly',
-  isValidElement: 'readonly',
-  // React Router
-  useNavigate: 'readonly',
-  useLocation: 'readonly',
-  useParams: 'readonly',
-  useSearchParams: 'readonly',
-  Link: 'readonly',
-  NavLink: 'readonly',
-  Navigate: 'readonly',
-  Outlet: 'readonly',
-}
-
+/**
+ * O que sobrou de código executável no projeto é a função de contato em `api/`
+ * e os utilitários de build em `scripts/`. Não há mais React, JSX nem
+ * importação automática, então as regras e os globais daquele mundo saíram
+ * junto — configuração que descreve um projeto que não existe mais atrapalha
+ * mais do que ajuda.
+ */
 export default [
-  { ignores: ['dist', 'node_modules'] },
+  { ignores: ['node_modules', 'out', 'public'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['api/**/*.ts', 'scripts/**/*.mjs'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2023,
+      sourceType: 'module',
       globals: {
-        ...globals.browser,
-        ...autoImportGlobals,
-        NodeJS: 'readonly',
-        JSX: 'readonly',
-        IdleRequestCallback: 'readonly',
-        __BASE_PATH__: 'readonly',
-        __IS_PREVIEW__: 'readonly',
-        __READDY_PROJECT_ID__: 'readonly',
-        __READDY_VERSION_ID__: 'readonly',
-        __READDY_AI_DOMAIN__: 'readonly',
+        ...globals.node,
       },
     },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-    },
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-      '@typescript-eslint/no-namespace': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-      'no-unused-vars': 'off',
-      'no-useless-escape': 'off',
-      'prefer-const': 'off',
-      'prefer-rest-params': 'off',
-      'prefer-spread': 'off',
-      'no-unused-expressions': 'off',
-      'no-case-declarations': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
-      'no-useless-catch': 'off',
-      'no-irregular-whitespace': 'off',
       'no-undef': 'error',
     },
   },
 ]
-
