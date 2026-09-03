@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/verifica-lacunas.mjs",
     "lint": "eslint api scripts --max-warnings 0",
     "type-check": "tsc --noEmit --project tsconfig.app.json",
     "test": "vitest run",
